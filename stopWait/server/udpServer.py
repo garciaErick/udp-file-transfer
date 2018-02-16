@@ -27,16 +27,26 @@ except:
 
 print "binding datagram socket to %s" % repr(serverAddr)
 
+def receive_handshake(serverSocket):
+    message, clientAddrPort = serverSocket.recvfrom(2048)
+    message = "Yeah handshake"
+    serverSocket.sendto(message, clientAddrPort)
 
-serverSocket = socket(AF_INET, SOCK_DGRAM)
-serverSocket.bind(serverAddr)
-print "ready to receive"
-with open("stopWait/server/putFromClient.txt", 'w') as outputFile:
-    while 1:
-        try:
-            message, clientAddrPort = serverSocket.recvfrom(2048)
-            outputFile.write(message + "\n")
-            outputFile.flush()
-        finally:
-            message = "Successfully made put request"
-            serverSocket.sendto(message, clientAddrPort)
+
+
+def put_method():
+    serverSocket = socket(AF_INET, SOCK_DGRAM)
+    serverSocket.bind(serverAddr)
+    receive_handshake(serverSocket)
+    print "ready to receive"
+    with open("stopWait/server/putFromClient.txt", 'w') as outputFile:
+        while 1:
+            try:
+                message, clientAddrPort = serverSocket.recvfrom(2048)
+                outputFile.write(message + "\n")
+                outputFile.flush()
+            finally:
+                message = "Successfully made put request"
+                serverSocket.sendto(message, clientAddrPort)
+
+put_method()

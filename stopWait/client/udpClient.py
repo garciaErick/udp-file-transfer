@@ -22,7 +22,15 @@ def get_method(textFname):
 def put_method(textFname):
     print("Initializing PUT from client")
     clientSocket = socket(AF_INET, SOCK_DGRAM)
+    send_handshake(clientSocket)
     send_packets(textFname,clientSocket)
+
+def send_handshake(clientSocket):
+    message = "Starting handshake"
+    print "Message from %s is: %s" % (repr(serverAddr), message)
+    clientSocket.sendto(message, serverAddr)
+    print "Message from %s is: %s" % (repr(serverAddr), message)
+
 
 def send_packets(textFname, clientSocket):
     size= os.path.getsize(textFname)
