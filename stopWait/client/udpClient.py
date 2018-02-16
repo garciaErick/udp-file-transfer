@@ -27,10 +27,9 @@ def put_method(textFname):
 
 def send_handshake(clientSocket):
     message = "Starting handshake"
-    print "Message from %s is: %s" % (repr(serverAddr), message)
     clientSocket.sendto(message, serverAddr)
-    print "Message from %s is: %s" % (repr(serverAddr), message)
-
+    modifiedMessage, clientAddrPort = clientSocket.recvfrom(2048)
+    print "Message from %s is: %s" % (repr(clientAddrPort), modifiedMessage)
 
 def send_packets(textFname, clientSocket):
     size= os.path.getsize(textFname)
