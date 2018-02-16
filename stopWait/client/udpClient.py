@@ -26,10 +26,18 @@ def put_method(textFname):
     send_packets(textFname,clientSocket)
 
 def send_handshake(clientSocket):
-    message = "Starting handshake"
+    message = "Trying to start handshake from client"
+    print message
     clientSocket.sendto(message, serverAddr)
     modifiedMessage, clientAddrPort = clientSocket.recvfrom(2048)
-    print "Message from %s is: %s" % (repr(clientAddrPort), modifiedMessage)
+    if (modifiedMessage == "Acknowledging handshake from server"):
+        print "Successfully initiated communication with server\n"
+    else:
+        print "Failed to innitiate trying again\n"
+        # Send on timeout
+        sys.exit(1)
+
+    # print "Message from %s is: %s" % (repr(clientAddrPort), modifiedMessage)
 
 def send_packets(textFname, clientSocket):
     size= os.path.getsize(textFname)
@@ -49,6 +57,9 @@ def send_packets(textFname, clientSocket):
         clientSocket.sendto(message, serverAddr)
         print "Message from %s is: %s" % (repr(serverAddr), message)
 
+def send_on_timeout():
+    print "";
+    # todo: implement
 
 try:
     args = sys.argv[1:]

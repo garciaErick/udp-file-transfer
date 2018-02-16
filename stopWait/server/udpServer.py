@@ -29,8 +29,11 @@ print "binding datagram socket to %s" % repr(serverAddr)
 
 def receive_handshake(serverSocket):
     message, clientAddrPort = serverSocket.recvfrom(2048)
-    modifiedMessage = "Yeah handshake"
-    serverSocket.sendto(modifiedMessage, clientAddrPort)
+    if (message == "Trying to start handshake from client"):
+        modifiedMessage = "Acknowledging handshake from server"
+        print modifiedMessage
+        serverSocket.sendto(modifiedMessage, clientAddrPort)
+        print "Successfully initiated communication with client"
 
 
 
