@@ -2,6 +2,7 @@
 from socket import *
 import sys
 import re
+import os
 
 # default params
 serverAddr = ('localhost', 50000)
@@ -21,13 +22,25 @@ def get_method(textFname):
 def put_method(textFname):
     print("Initializing PUT from client")
     clientSocket = socket(AF_INET, SOCK_DGRAM)
+    send_packets(textFname,clientSocket)
+
+def send_packets(textFname, clientSocket):
+    size= os.path.getsize(textFname)
+    counter= 0
+    i=0
+    k=100
+    message = ""
     with open(textFname, 'r') as inputFile:
-        for line in inputFile:
-            line = line.strip()
-            message = line
-            clientSocket.sendto(message, serverAddr)
-        modifiedMessage, serverAddrPort = clientSocket.recvfrom(2048)
-        print "Message from %s is: %s" % (repr(serverAddrPort), modifiedMessage)
+        while counter < size:
+            if (size - counter < 100):
+                k = size - counter
+            while i < k:
+                message += inputFile.read(counter)
+                i += 1
+                counter += 1
+            i = 0
+        clientSocket.sendto(message, serverAddr)
+        print "Message from %s is: %s" % (repr(serverAddr), message)
 
 
 try:
@@ -44,5 +57,6 @@ try:
             usage()
 except:
     usage()
+
 
 put_method("putTestFile.txt")
