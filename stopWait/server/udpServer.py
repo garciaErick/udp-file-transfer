@@ -11,11 +11,15 @@ def usage():
     sys.exit(1)
 
 # TODO:
+# def split_into_packets():
+
+# TODO:
+# def retransmit_on_duplicate():
+
 # At least one side must implement retransmit-on-timeout; otherwise a lost packet leads to deadlock as the sender
 # and the receiver both wait forever. The other side must implement at least one of retransmit-on-duplicate or
 # retransmit-on-timeout; usually the former alone. If both sides implement retransmit-on-timeout with different
 # timeout values, generally the protocol will still work.
-# def retransmit_on_duplicate():
 
 try:
     args = sys.argv[1:]
