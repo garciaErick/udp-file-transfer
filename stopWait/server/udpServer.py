@@ -10,6 +10,12 @@ def usage():
     print "usage: %s [--serverPort <port>]" % sys.argv[0]
     sys.exit(1)
 
+# TODO:
+# At least one side must implement retransmit-on-timeout; otherwise a lost packet leads to deadlock as the sender
+# and the receiver both wait forever. The other side must implement at least one of retransmit-on-duplicate or
+# retransmit-on-timeout; usually the former alone. If both sides implement retransmit-on-timeout with different
+# timeout values, generally the protocol will still work.
+# def retransmit_on_duplicate():
 
 try:
     args = sys.argv[1:]

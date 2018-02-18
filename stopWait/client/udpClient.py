@@ -4,26 +4,23 @@ import sys
 import re
 import os
 
-# default params
-serverAddr = ('localhost', 50000)
-
 
 def usage():
     print "usage: %s [--serverAddr host:port]" % sys.argv[0]
-    sys.exit(1)
 
 
-def get_method(textFname):
+def get_method(file_name):
     print("Creating file: ")
-    with open(textFname, 'w') as inputFile:  # Add to the dictionary the words found in the file.
+    with open(file_name, 'w') as inputFile:  # Add to the dictionary the words found in the file.
         inputFile.write('i play to win')
 
 
-def put_method(textFname):
+def put_method(file_name):
     print("Initializing PUT from client")
     clientSocket = socket(AF_INET, SOCK_DGRAM)
     send_handshake(clientSocket)
-    send_packets(textFname,clientSocket)
+    send_packets(file_name, clientSocket)
+
 
 def send_handshake(clientSocket):
     message = "Trying to start handshake from client"
@@ -37,15 +34,16 @@ def send_handshake(clientSocket):
         # Send on timeout
         sys.exit(1)
 
-    # print "Message from %s is: %s" % (repr(clientAddrPort), modifiedMessage)
+        # print "Message from %s is: %s" % (repr(clientAddrPort), modifiedMessage)
 
-def send_packets(textFname, clientSocket):
-    size= os.path.getsize(textFname)
-    counter= 0
-    i=0
-    k=100
+
+def send_packets(file_name, clientSocket):
+    size = os.path.getsize(file_name)
+    counter = 0
+    i = 0
+    k = 100
     message = ""
-    with open(textFname, 'r') as inputFile:
+    with open(file_name, 'r') as inputFile:
         while counter < size:
             if (size - counter < 100):
                 k = size - counter
@@ -57,10 +55,17 @@ def send_packets(textFname, clientSocket):
         clientSocket.sendto(message, serverAddr)
         print "Message from %s is: %s" % (repr(serverAddr), message)
 
-def send_on_timeout():
-    print "";
-    # todo: implement
 
+# TODO:
+# def retransmit_on_timeout():
+
+
+# default params
+serverAddr = ('localhost', 50000)
+protocol = ""
+file_name = ""
+
+# TODO: research on this for better args parsing https://docs.python.org/3.3/library/argparse.html
 try:
     args = sys.argv[1:]
     while args:
@@ -70,11 +75,24 @@ try:
             addr, port = re.split(":", args[0])
             del args[0]
             serverAddr = (addr, int(port))
+        elif sw == "--protocol" or sw == "-p":
+            protocol = args[0]
+            del args[0]
+        elif sw == "--file_name" or sw == "-f":
+            file_name = args[0]
+            del args[0]
         else:
             print "unexpected parameter %s" % args[0]
             usage()
+
+    if protocol == "put":
+        put_method("putTestFile.txt")
+    elif protocol == "get":
+        get_method(file_name)
+    else:
+        print "Invalid protocol: %s" % protocol
+        usage()
 except:
+    print "An exception ocurred"
     usage()
-
-
-put_method("putTestFile.txt")
+    sys.exit(1)
