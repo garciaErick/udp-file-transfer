@@ -88,7 +88,7 @@ try:
     if protocol == "put":
         put_method("putTestFile.txt")
     elif protocol == "get":
-        get_method(file_name)
+        get_method("getTestFile.txt")
     else:
         print "Invalid protocol: %s" % protocol
         usage()
