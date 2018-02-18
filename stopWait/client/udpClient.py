@@ -55,6 +55,9 @@ def send_packets(file_name, clientSocket):
         clientSocket.sendto(message, serverAddr)
         print "Message from %s is: %s" % (repr(serverAddr), message)
 
+#TODO:
+#def split_into_packets(file_name):
+
 
 # TODO:
 # def retransmit_on_timeout():

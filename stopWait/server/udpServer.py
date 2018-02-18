@@ -58,5 +58,4 @@ def put_method():
                 message = "Successfully made put request"
                 serverSocket.sendto(message, clientAddrPort)
 
-receive_handshake()
 put_method()
