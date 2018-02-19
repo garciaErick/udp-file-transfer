@@ -5,13 +5,32 @@ from socket import *
 serverAddr = ("", 50001)
 
 import sys
+import os
 
 def usage():
     print "usage: %s [--serverPort <port>]" % sys.argv[0]
     sys.exit(1)
 
-# TODO:
-# def split_into_packets():
+# # TODO:
+def split_into_packets(file_name,serverSocket):
+    message, clientAddrPort = serverSocket.recvfrom(2048)
+    size = os.path.getsize(file_name)
+    counter = 0
+    i = 0
+    k = 100
+    message = ""
+    with open("stopWait/server/getFileFromServer.txt", 'r') as inputFile:
+        while counter < size:
+            if (size - counter < 100):
+                k = size - counter
+            while i < k:
+                message += inputFile.read(counter)
+                i += 1
+                counter += 1
+            i = 0
+        serverSocket.sendto(message, clientAddrPort)
+        print "Message from %s is: %s" % (repr(clientAddrPort), message)
+
 
 # TODO:
 # def retransmit_on_duplicate():
@@ -46,6 +65,11 @@ def receive_handshake(serverSocket):
         print "Successfully initiated communication with client"
 
 
+def get_method_magic():
+    serverSocket = socket(AF_INET, SOCK_DGRAM)
+    serverSocket.bind(serverAddr)
+    print "ready to send"
+    split_into_packets("stopWait/server/getFileFromServer.txt",serverSocket)
 
 def put_method():
     serverSocket = socket(AF_INET, SOCK_DGRAM)
@@ -62,4 +86,4 @@ def put_method():
                 message = "Successfully made put request"
                 serverSocket.sendto(message, clientAddrPort)
 
-put_method()
+get_method_magic()
