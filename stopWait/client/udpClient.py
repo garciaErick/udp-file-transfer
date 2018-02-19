@@ -88,9 +88,9 @@ try:
             print "unexpected parameter %s" % args[0]
             usage()
 
-    if protocol == "put":
+    if protocol.lower() == "put":
         put_method("putTestFile.txt")
-    elif protocol == "get":
+    elif protocol.lower() == "get":
         get_method("getTestFile.txt")
     else:
         print "Invalid protocol: %s" % protocol
