@@ -17,25 +17,32 @@ def get_method(file_name):
 
 def put_method(file_name):
     print("Initializing PUT from client")
-    clientSocket = socket(AF_INET, SOCK_DGRAM)
-    send_handshake(clientSocket)
-    send_packets(file_name, clientSocket)
+    # send_packets(file_name, clientSocket)
 
 
-def send_handshake(clientSocket):
-    message = "Trying to start handshake from client"
-    print message
+# def send_handshake(clientSocket):
+#     message = "Trying to start handshake from client"
+#     print message
+#     clientSocket.sendto(message, serverAddr)
+#     modifiedMessage, clientAddrPort = clientSocket.recvfrom(2048)
+#     if (modifiedMessage == "Acknowledging handshake from server"):
+#         print "Successfully initiated communication with server\n"
+#     else:
+#         print "Failed to innitiate trying again\n"
+#         # Send on timeout
+#         sys.exit(1)
+
+def send_protocol_and_fname(clientSocket, protocol, file_name):
+    print "Starting protocol: %s, file: %s" % (protocol.upper(), file_name)
+    message = protocol + " " + file_name
     clientSocket.sendto(message, serverAddr)
-    modifiedMessage, clientAddrPort = clientSocket.recvfrom(2048)
-    if (modifiedMessage == "Acknowledging handshake from server"):
+    modified_message, clientAddrPort = clientSocket.recvfrom(2048)
+    if (modified_message == "Acknowledging handshake from server"):
         print "Successfully initiated communication with server\n"
     else:
         print "Failed to innitiate trying again\n"
         # Send on timeout
         sys.exit(1)
-
-        # print "Message from %s is: %s" % (repr(clientAddrPort), modifiedMessage)
-
 
 def send_packets(file_name, clientSocket):
     size = os.path.getsize(file_name)
@@ -88,10 +95,12 @@ try:
             print "unexpected parameter %s" % args[0]
             usage()
 
+    clientSocket = socket(AF_INET, SOCK_DGRAM)
     if protocol.lower() == "put":
-        put_method("putTestFile.txt")
+        send_protocol_and_fname(clientSocket, protocol, file_name)
+        # put_method(file_name)
     elif protocol.lower() == "get":
-        get_method("getTestFile.txt")
+        get_method(file_name)
     else:
         print "Invalid protocol: %s" % protocol
         usage()
