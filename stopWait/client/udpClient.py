@@ -10,10 +10,23 @@ def usage():
 
 
 def get_method(file_name):
-    print("Creating file: ")
-    with open(file_name, 'w') as inputFile:  # Add to the dictionary the words found in the file.
-        inputFile.write('i play to win')
+    print "fucking shit up"
+    clientSocket = socket(AF_INET, SOCK_DGRAM)
+    # send_handshake(clientSocket)
+    recieve_packets(clientSocket)
 
+
+def recieve_packets(clientSocket):
+    print "I came here to eat bread and fuck shit up"
+    with open("stopWait/client/getFromServer.txt", 'w') as outputFile:
+        while 1:
+            try:
+                message, serverAddrPort = clientSocket.recvfrom(2048)
+                outputFile.write(message + "\n")
+                outputFile.flush()
+            finally:
+                message = "Successfully made get request"
+                # clientSocket.sendto(message, serverAddrPort)
 
 def put_method(file_name):
     print("Initializing PUT from client")
@@ -104,7 +117,7 @@ try:
     else:
         print "Invalid protocol: %s" % protocol
         usage()
-except:
-    print "An exception ocurred"
+except Exception as e:
+    print "An exception ocurred"  + str(e)
     usage()
     sys.exit(1)
