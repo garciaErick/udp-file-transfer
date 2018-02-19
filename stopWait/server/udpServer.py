@@ -7,11 +7,12 @@ serverAddr = ("", 50001)
 import sys
 import os
 
+
 def usage():
     print "usage: %s [--serverPort <port>]" % sys.argv[0]
     sys.exit(1)
 
-# # TODO:
+
 def split_into_packets(file_name,serverSocket):
     message, clientAddrPort = serverSocket.recvfrom(2048)
     size = os.path.getsize(file_name)
@@ -56,13 +57,14 @@ except:
 
 print "binding datagram socket to %s" % repr(serverAddr)
 
-def receive_handshake(serverSocket):
-    message, clientAddrPort = serverSocket.recvfrom(2048)
-    if (message == "Trying to start handshake from client"):
-        modifiedMessage = "Acknowledging handshake from server"
-        print modifiedMessage
-        serverSocket.sendto(modifiedMessage, clientAddrPort)
-        print "Successfully initiated communication with client"
+
+# def receive_handshake(serverSocket):
+#     message, clientAddrPort = serverSocket.recvfrom(2048)
+#     if (message == "Trying to start handshake from client"):
+#         modifiedMessage = "Acknowledging handshake from server"
+#         print modifiedMessage
+#         serverSocket.sendto(modifiedMessage, clientAddrPort)
+#         print "Successfully initiated communication with client"
 
 
 def get_method_magic():
@@ -70,11 +72,19 @@ def get_method_magic():
     serverSocket.bind(serverAddr)
     print "ready to send"
     split_into_packets("stopWait/server/getFileFromServer.txt",serverSocket)
+    
+def receive_protocol_and_fname(serverSocket):
+    message, clientAddrPort = serverSocket.recvfrom(2048)
+    modified_message = "Acknowledging handshake from server"
+    protocol, file_name = message.split(" ")
+    serverSocket.sendto(modified_message, clientAddrPort)
+
+    print protocol
+    print file_name
+
 
 def put_method():
-    serverSocket = socket(AF_INET, SOCK_DGRAM)
-    serverSocket.bind(serverAddr)
-    receive_handshake(serverSocket)
+
     print "ready to receive"
     with open("stopWait/server/putFromClient.txt", 'w') as outputFile:
         while 1:
@@ -86,4 +96,10 @@ def put_method():
                 message = "Successfully made put request"
                 serverSocket.sendto(message, clientAddrPort)
 
+
+serverSocket = socket(AF_INET, SOCK_DGRAM)
+serverSocket.bind(serverAddr)
+receive_protocol_and_fname(serverSocket)
+# put_method()
 get_method_magic()
+
