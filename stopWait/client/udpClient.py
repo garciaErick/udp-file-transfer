@@ -10,46 +10,46 @@ def usage():
 
 
 def get_method(file_name):
-    print "fucking shit up"
-    clientSocket = socket(AF_INET, SOCK_DGRAM)
+    print "I came here to drink whiskey and fuck shit up"
+    # clientSocket = socket(AF_INET, SOCK_DGRAM)
     # send_handshake(clientSocket)
     recieve_packets(clientSocket)
 
 
 def recieve_packets(clientSocket):
-    print "I came here to eat bread and fuck shit up"
+    print "and im all out of whiskey (soon)"
     with open("stopWait/client/getFromServer.txt", 'w') as outputFile:
         while 1:
             try:
                 message, serverAddrPort = clientSocket.recvfrom(2048)
+                print message
                 outputFile.write(message + "\n")
                 outputFile.flush()
             finally:
                 message = "Successfully made get request"
-                # clientSocket.sendto(message, serverAddrPort)
 
 def put_method(file_name):
     print("Initializing PUT from client")
-    # send_packets(file_name, clientSocket)
+    send_packets(file_name, clientSocket)
 
 
-# def send_handshake(clientSocket):
-#     message = "Trying to start handshake from client"
-#     print message
-#     clientSocket.sendto(message, serverAddr)
-#     modifiedMessage, clientAddrPort = clientSocket.recvfrom(2048)
-#     if (modifiedMessage == "Acknowledging handshake from server"):
-#         print "Successfully initiated communication with server\n"
-#     else:
-#         print "Failed to innitiate trying again\n"
-#         # Send on timeout
-#         sys.exit(1)
+def send_handshake(clientSocket):
+    message = "Trying to start handshake from client"
+    print message
+    clientSocket.sendto(message, serverAddr)
+    modifiedMessage, clientAddrPort = clientSocket.recvfrom(2048)
+    if (modifiedMessage == "Acknowledging handshake from server"):
+        print "Successfully initiated communication with server\n"
+    else:
+        print modifiedMessage
+        # Send on timeout
+        sys.exit(1)
 
 def send_protocol_and_fname(clientSocket, protocol, file_name):
     print "Starting protocol: %s, file: %s" % (protocol.upper(), file_name)
     message = protocol + " " + file_name
     clientSocket.sendto(message, serverAddr)
-    modified_message, clientAddrPort = clientSocket.recvfrom(2048)
+    modified_message, serverAddrPort = clientSocket.recvfrom(2048)
     if (modified_message == "Acknowledging handshake from server"):
         print "Successfully initiated communication with server\n"
     else:
@@ -111,13 +111,14 @@ try:
     clientSocket = socket(AF_INET, SOCK_DGRAM)
     if protocol.lower() == "put":
         send_protocol_and_fname(clientSocket, protocol, file_name)
-        # put_method(file_name)
+        put_method(file_name)
     elif protocol.lower() == "get":
+        send_protocol_and_fname(clientSocket, protocol, file_name)
         get_method(file_name)
     else:
         print "Invalid protocol: %s" % protocol
         usage()
 except Exception as e:
-    print "An exception ocurred"  + str(e)
+    print "An exception ocurred " + "\n"  + str(e)
     usage()
     sys.exit(1)
