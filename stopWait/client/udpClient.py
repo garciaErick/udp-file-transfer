@@ -10,19 +10,18 @@ def usage():
 
 
 def get_method(file_name):
-    print "I came here to drink whiskey and fuck shit up"
     # clientSocket = socket(AF_INET, SOCK_DGRAM)
     # send_handshake(clientSocket)
-    recieve_packets(clientSocket)
+    recieve_packets(file_name, clientSocket)
 
 
-def recieve_packets(clientSocket):
-    print "and im all out of whiskey (soon)"
+def recieve_packets(file_name, clientSocket):
+    clientSocket = socket(AF_INET, SOCK_DGRAM)
     with open("stopWait/client/getFromServer.txt", 'w') as outputFile:
         while 1:
             try:
+                print "fuck da pliz"
                 message, serverAddrPort = clientSocket.recvfrom(2048)
-                print message
                 outputFile.write(message + "\n")
                 outputFile.flush()
             finally:
@@ -33,23 +32,24 @@ def put_method(file_name):
     send_packets(file_name, clientSocket)
 
 
-def send_handshake(clientSocket):
-    message = "Trying to start handshake from client"
-    print message
-    clientSocket.sendto(message, serverAddr)
-    modifiedMessage, clientAddrPort = clientSocket.recvfrom(2048)
-    if (modifiedMessage == "Acknowledging handshake from server"):
-        print "Successfully initiated communication with server\n"
-    else:
-        print modifiedMessage
-        # Send on timeout
-        sys.exit(1)
+# def send_handshake(clientSocket):
+#     message = "Trying to start handshake from client"
+#     print message
+#     clientSocket.sendto(message, serverAddr)
+#     modifiedMessage, clientAddrPort = clientSocket.recvfrom(2048)
+#     if (modifiedMessage == "Acknowledging handshake from server"):
+#         print "Successfully initiated communication with server\n"
+#     else:
+#         print modifiedMessage
+#         # Send on timeout
+#         sys.exit(1)
 
 def send_protocol_and_fname(clientSocket, protocol, file_name):
     print "Starting protocol: %s, file: %s" % (protocol.upper(), file_name)
     message = protocol + " " + file_name
     clientSocket.sendto(message, serverAddr)
     modified_message, serverAddrPort = clientSocket.recvfrom(2048)
+    print modified_message
     if (modified_message == "Acknowledging handshake from server"):
         print "Successfully initiated communication with server\n"
     else:

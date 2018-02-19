@@ -1,27 +1,25 @@
 #! /bin/python
 from socket import *
 
-# default params
-serverAddr = ("", 50001)
-
 import sys
 import os
 
+# default params
+serverAddr = ("", 50001)
 
 def usage():
     print "usage: %s [--serverPort <port>]" % sys.argv[0]
     sys.exit(1)
 
 
-def split_into_packets(file_name,serverSocket):
-    message, clientAddrPort = serverSocket.recvfrom(2048)
+def split_into_packets(file_name, clientAddrPort):
+    # todo: estoy aqui
     size = os.path.getsize(file_name)
     counter = 0
     i = 0
     k = 100
     message = ""
-    with open("stopWait/server/getFileFromServer.txt", 'r') as inputFile:
-        print "shitposting"
+    with open(file_name, 'r') as inputFile:
         while counter < size:
             if (size - counter < 100):
                 k = size - counter
@@ -31,8 +29,7 @@ def split_into_packets(file_name,serverSocket):
                 counter += 1
             i = 0
         serverSocket.sendto(message, clientAddrPort)
-
-        # print "Message from %s is: %s" % (repr(clientAddrPort), message)
+        print "Message from %s is: %s" % (repr(clientAddrPort), message)
 
 
 # TODO:
@@ -53,9 +50,9 @@ def split_into_packets(file_name,serverSocket):
 #         print "Successfully initiated communication with client"
 
 
-def get_method(file_name):
+def get_method(file_name, clientAddrPort):
     print "ready to send"
-    split_into_packets(file_name,serverSocket)
+    split_into_packets(file_name,clientAddrPort)
 
 def receive_protocol_and_fname(serverSocket):
     message, clientAddrPort = serverSocket.recvfrom(2048)
@@ -67,10 +64,9 @@ def receive_protocol_and_fname(serverSocket):
 
     protocol = protocol.lower()
     if protocol == "put":
-        print " FUCK"
         put_method(file_name)
     elif protocol == "get":
-        get_method("stopWait/server/getFileFromServer.txt")
+        get_method(file_name, clientAddrPort)
     else:
         sys.exit(1)
 
