@@ -95,7 +95,6 @@ def main():
                 print "unexpected parameter %s" % args[0]
                 usage()
 
-        clientSocket = socket(AF_INET, SOCK_DGRAM)
         if protocol.lower() == "put":
             send_protocol_and_fname(clientSocket, protocol, file_name)
             put_method(file_name)
