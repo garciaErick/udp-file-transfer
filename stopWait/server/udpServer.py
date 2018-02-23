@@ -15,6 +15,7 @@ def usage():
     sys.exit(1)
 
 
+# Receiving protocol and file name from client and acting accordingly
 def receive_protocol_and_fname(serverSocket):
     message, clientAddrPort = serverSocket.recvfrom(2048)
     modified_message = "Acknowledging handshake from server"
@@ -31,6 +32,7 @@ def receive_protocol_and_fname(serverSocket):
         sys.exit(1)
 
 
+# Splitting file into packets of 100B
 def split_into_packets(file_name):
     size = os.path.getsize("stopWait/server/" + file_name)
     counter = 0
@@ -48,6 +50,7 @@ def split_into_packets(file_name):
     return packets
 
 
+# Used for timeout
 def signal_handler(signum, frame):
     raise Exception("timeout")
 
@@ -92,7 +95,7 @@ def get_method(file_name, clientAddrPort):
                 print modified_message
                 signal.alarm(5)
                 modified_message, clientAddrPort = serverSocket.recvfrom(2048)
-            except Exception as e:
+            except Exception as e:  # if a timeout occurs it will try to retransmit
                 if e.message == "timeout":
                     print "timeout ocurred"
                     serverSocket.sendto(packet, clientAddrPort)
