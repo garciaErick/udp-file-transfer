@@ -5,7 +5,7 @@ import sys
 import re
 import os
 import time
-
+import signal
 # default params
 serverAddr = ('localhost', 50000)
 clientSocket = socket(AF_INET, SOCK_DGRAM)
@@ -19,22 +19,20 @@ def usage():
 
 def get_method(file_name,clientSocket):
     print("Initializing GET from client")
+    i=0
     with open("stopWait/client/getFromServer.txt", 'w') as outputFile:
         while 1:
-            try:
-                packet, serverAddrPort = clientSocket.recvfrom(2048)
-                if packet == "Finished!":
-                    print "Done!"
-                    sys.exit(1)
-                time.sleep(.100)
-                print packet
-                outputFile.write(packet)
-                outputFile.flush()
-                if packet == "Finished!":
-                    print "Done!"
-                    sys.exit(1)
-            finally:
-                message = "Successfully made get request"
+            packet, serverAddrPort = clientSocket.recvfrom(2048)
+            print packet
+            if packet == "Finished!":
+                print "Done!"
+                clientSocket.sendto("Recieved packet " + str(i), serverAddrPort)
+                sys.exit(1)
+            # time.sleep(4)
+            clientSocket.sendto("Recieved packet " + str(i), serverAddrPort)
+            outputFile.write(packet)
+            outputFile.flush()
+            i +=1
 
 # def recieve_packets(file_name, clientSocket):
 
@@ -52,13 +50,37 @@ def send_protocol_and_fname(clientSocket, protocol, file_name):
         # TODO: Send on timeout
         sys.exit(1)
 
+def signal_handler(signum, frame):
+    raise Exception("timeout")
 
 def put_method(file_name):
     print("Initializing PUT from client")
+    modified_message=""
     packets = split_into_packets(file_name)
+    i= 0
     for packet in packets:
+        print packet
         clientSocket.sendto(packet, serverAddr)
+        modified_message, serverAddrPort = clientSocket.recvfrom(2048)
+        signal.signal(signal.SIGALRM, signal_handler)
+        while ( modified_message != "Recieved packet " + str(i) ):
+            try:
+                if((modified_message != "Recieved packet " + str(len(packets)-1))):
+                    print "YAAAAAAAAAAAAY"
+                    sys.exit(0)
+                print modified_message
+                signal.alarm(3)
+                modified_message, serverAddrPort = clientSocket.recvfrom(2048)
+            except Exception as e:
+                if e.message == "timeout":
+                    print "timeout lol"
+                    clientSocket.sendto(packet, serverAddr)
+        # clientSocket.sendto(packet, serverAddr)
+        i+=1
+        modified_message=""
     print "Sucessfully finished PUT request"
+
+# def resend_on_timeout(packet, clientSocket):
 
 
 def send_protocol_and_fname(clientSocket, protocol, file_name):
@@ -78,26 +100,27 @@ def send_protocol_and_fname(clientSocket, protocol, file_name):
 def split_into_packets(file_name):
     size = os.path.getsize(file_name)
     counter = 0
-    i = 0
     k = 100
-    message = ""
+    i = 0
     packets = list()
-    with open(file_name, 'r') as inputFile:
+    with open(file_name, 'rb') as inputFile:
         while counter < size:
-            if (size - counter < 100):
-                k = size - counter
-            while i < k:
-                message += inputFile.read(counter)
-                i += 1
-                counter += 1
-            i = 0
+            message = ""
+            # if (size - counter < 100):
+            #     k = size - counter
+            message += inputFile.read(k)
             packets.append(message)
-            message =""
+            counter += k
+            i += 1
+    packets.append("Finished!")
     return packets
 
 
 # TODO:
-# def retransmit_on_timeout():
+def retransmit_on_timeout(packet):
+    clientSocket.sendto(packet, serverAddr)
+
+
 
 def main():
     try:
