@@ -18,6 +18,7 @@ def usage():
     print "usage: %s [--serverAddr host:port -p protocol -f file_name]" % sys.argv[0]
 
 
+# Sending protocol and file name to server and starting communication
 def send_protocol_and_fname(clientSocket, protocol, file_name):
     print "Starting protocol from client: %s, file: %s" % (protocol.upper(), file_name)
     message = protocol + " " + file_name
@@ -30,6 +31,7 @@ def send_protocol_and_fname(clientSocket, protocol, file_name):
         sys.exit(1)
 
 
+# Splitting file into packets of 100B
 def split_into_packets(file_name):
     size = os.path.getsize("stopWait/client/" + file_name)
     counter = 0
@@ -47,6 +49,7 @@ def split_into_packets(file_name):
     return packets
 
 
+# The signal is used for the retransmit-on-timeout
 def signal_handler(signum, frame):
     raise Exception("timeout")
 
@@ -69,7 +72,7 @@ def put_method(file_name):
                 print modified_message
                 signal.alarm(6)
                 modified_message, serverAddrPort = clientSocket.recvfrom(2048)
-            except Exception as e:
+            except Exception as e:  # if a timeout occurs it will try to retransmit
                 if e.message == "timeout":
                     print "timeout ocurred"
                     clientSocket.sendto(packet, serverAddr)
@@ -97,6 +100,7 @@ def get_method(file_name, clientSocket):
 
 def main():
     try:
+        # Parsing script args
         args = sys.argv[1:]
         while args:
             sw = args[0]
@@ -115,6 +119,7 @@ def main():
                 print "unexpected parameter %s" % args[0]
                 usage()
 
+        # Sendig protocol to server and starting protocol on client side
         clientSocket = socket(AF_INET, SOCK_DGRAM)
         if protocol.lower() == "put":
             send_protocol_and_fname(clientSocket, protocol, file_name)
