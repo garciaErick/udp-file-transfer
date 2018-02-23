@@ -25,6 +25,7 @@ def recieve_packets(file_name, clientSocket):
         while 1:
             try:
                 packet, serverAddrPort = clientSocket.recvfrom(2048)
+                print packet
                 if packet != "Finished!":
                     outputFile.write(packet + "\n")
                     outputFile.flush()
