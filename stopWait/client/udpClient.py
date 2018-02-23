@@ -15,6 +15,47 @@ def usage():
     print "usage: %s [--serverAddr host:port]" % sys.argv[0]
 
 
+def get_method(file_name):
+    recieve_packets(file_name, clientSocket)
+
+
+def recieve_packets(file_name, clientSocket):
+    with open("stopWait/client/getFromServer.txt", 'w') as outputFile:
+        while 1:
+            try:
+                message, serverAddrPort = clientSocket.recvfrom(2048)
+                if message != "Finished!":
+                    print message + "NUMBERS    "
+                    outputFile.write(message + "\n")
+                    outputFile.flush()
+                else:
+                    print "Done!"
+                    sys.exit(1)
+            finally:
+                message = "Successfully made get request"
+
+
+def send_protocol_and_fname(clientSocket, protocol, file_name):
+    print "Starting protocol from client: %s, file: %s" % (protocol.upper(), file_name)
+    message = protocol + " " + file_name
+    clientSocket.sendto(message, serverAddr)
+    modified_message, serverAddrPort = clientSocket.recvfrom(2048)
+    if (modified_message == "Acknowledging handshake from server"):
+        print "Successfully initiated communication with server\n"
+    else:
+        print "Failed to innitiate trying again\n"
+        # TODO: Send on timeout
+        sys.exit(1)
+
+
+def put_method(file_name):
+    print("Initializing PUT from client")
+    packets = split_into_packets(file_name)
+    for packet in packets:
+        clientSocket.sendto(packet, serverAddr)
+    print "Sucessfully finished PUT request"
+
+
 def send_protocol_and_fname(clientSocket, protocol, file_name):
     print "Starting protocol from client: %s, file: %s" % (protocol.upper(), file_name)
     message = protocol + " " + file_name
@@ -27,29 +68,6 @@ def send_protocol_and_fname(clientSocket, protocol, file_name):
         # Send on timeout
         sys.exit(1)
 
-
-def get_method(file_name):
-    clientSocket = socket(AF_INET, SOCK_DGRAM)
-    file_name = "stopWait/client/getFromServer.txt"
-    with open(file_name, 'w') as outputFile:
-        while 1:
-            try:
-                print "fuck da pliz"
-                packet, serverAddrPort = clientSocket.recvfrom(2048)
-                outputFile.write(packet + "\n")
-                outputFile.flush()
-            finally:
-                message = "Successfully made get request"
-                clientSocket.sendto(message, serverAddrPort)
-
-
-def put_method(file_name):
-    print "Initializing PUT from client"
-    # send_packets(file_name, clientSocket)
-    packets_to_send = split_into_packets(file_name)
-    for packet in packets_to_send:
-        clientSocket.sendto(packet, serverAddr)
-    print "Sucessfully finished PUT request"
 
 
 def split_into_packets(file_name):
@@ -95,6 +113,7 @@ def main():
                 print "unexpected parameter %s" % args[0]
                 usage()
 
+        clientSocket = socket(AF_INET, SOCK_DGRAM)
         if protocol.lower() == "put":
             send_protocol_and_fname(clientSocket, protocol, file_name)
             put_method(file_name)
@@ -102,6 +121,7 @@ def main():
             send_protocol_and_fname(clientSocket, protocol, file_name)
             get_method(file_name)
         else:
+            print "unexpected parameterr %s" % args[0]
             print "Invalid protocol: %s" % protocol
             usage()
     except Exception as e:
