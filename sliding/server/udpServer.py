@@ -47,7 +47,7 @@ def split_into_packets(file_name):
             i += 1
 
     # print len(packets)
-    packets.append("Finished!")
+    packets.append("Ending Communication!")
     return packets
 
 
@@ -105,9 +105,6 @@ def get_method(file_name, clientAddrPort):
         while ( modified_message != "Recieved packet " + str(i) ):
             try:
                 print "Modified message : " + modified_message
-                if((modified_message != "Recieved packet " + str(len(packets_to_send)-1))):
-                    print "YAAAAAAAAAAA1AY"
-                    sys.exit(0)
                 print modified_message
                 signal.alarm(5)
                 modified_message, clientAddrPort = serverSocket.recvfrom(2048)
@@ -120,27 +117,29 @@ def get_method(file_name, clientAddrPort):
         i+=1
         modified_message=""
     print "Sucessfully finished GET request"
-    # serverSocket.sendto("Finished!",clientAddrPort)
+    # serverSocket.sendto("Ending Communication!",clientAddrPort)
 
 def put_method(file_name):
-    with open("stopWait/server/putFromClient.txt", 'w') as outputFile:
+    with open("sliding/server/putFromClient.txt", 'w') as outputFile:
         i=0
         k = 0
+        sliding_size = 4
+        currentSize = 0
+        packetNumber =0
         while 1:
-                # if k == 2:
-                #     time.sleep(5)
-                #     k=0
+            currentSize=0
+            while currentSize < sliding_size:
                 packet, clientAddrPort = serverSocket.recvfrom(2048)
-                print packet
-                if packet == "Finished!":
-                    print "Done!"
+                if packet == "Ending Communication!":
+                    print "Done!!!11!"
                     serverSocket.sendto("Recieved packet " + str(i), clientAddrPort)
                     sys.exit(1)
-                outputFile.write(packet)
                 serverSocket.sendto("Recieved packet " + str(i), clientAddrPort)
-                outputFile.flush()
-                k +=1
+                currentSize +=1
                 i +=1
+                print str(i) + " " +  packet
+                outputFile.write(packet)
+            outputFile.flush()
 
 
 try:
