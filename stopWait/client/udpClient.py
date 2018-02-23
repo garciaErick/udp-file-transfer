@@ -15,7 +15,7 @@ def usage():
     print "usage: %s [--serverAddr host:port]" % sys.argv[0]
 
 
-<<<<<<< HEAD
+
 def get_method(file_name):
     print "Initializing GET from server"
     # clientSocket = socket(AF_INET, SOCK_DGRAM)
@@ -24,7 +24,7 @@ def get_method(file_name):
 
 
 def recieve_packets(file_name, clientSocket):
-    with open("getFromServerrrrrrrrrrr.txt", 'w') as outputFile:
+    with open("getFromServer.txt", 'w') as outputFile:
         while 1:
             try:
                 message, serverAddrPort = clientSocket.recvfrom(2048)
@@ -35,7 +35,7 @@ def recieve_packets(file_name, clientSocket):
                 else:
                     print "Done!"
                     sys.exit(1)
-=======
+
 def send_protocol_and_fname(clientSocket, protocol, file_name):
     print "Starting protocol from client: %s, file: %s" % (protocol.upper(), file_name)
     message = protocol + " " + file_name
@@ -59,14 +59,12 @@ def get_method(file_name):
                 packet, serverAddrPort = clientSocket.recvfrom(2048)
                 outputFile.write(packet + "\n")
                 outputFile.flush()
->>>>>>> 3af18184a2526a366f167354e14cff4bb22f49fc
             finally:
                 message = "Successfully made get request"
                 clientSocket.sendto(message, serverAddrPort)
 
 
 def put_method(file_name):
-<<<<<<< HEAD
     print("Initializing PUT from client")
     send_packets(file_name, clientSocket)
 
@@ -96,7 +94,6 @@ def send_protocol_and_fname(clientSocket, protocol, file_name):
         print modified_message
         # Send on timeout
         sys.exit(1)
-=======
     print "Initializing PUT from client"
     # send_packets(file_name, clientSocket)
     packets_to_send = split_into_packets(file_name)
@@ -104,7 +101,6 @@ def send_protocol_and_fname(clientSocket, protocol, file_name):
         clientSocket.sendto(packet, serverAddr)
     print "Sucessfully finished PUT request"
 
->>>>>>> 3af18184a2526a366f167354e14cff4bb22f49fc
 
 def split_into_packets(file_name):
     size = os.path.getsize(file_name)
@@ -156,11 +152,8 @@ def main():
             send_protocol_and_fname(clientSocket, protocol, file_name)
             get_method(file_name)
         else:
-<<<<<<< HEAD
             print "unexpected parameterr %s" % args[0]
-=======
             print "Invalid protocol: %s" % protocol
->>>>>>> 3af18184a2526a366f167354e14cff4bb22f49fc
             usage()
     except Exception as e:
         print "An exception ocurred " + "\n" + str(e)
