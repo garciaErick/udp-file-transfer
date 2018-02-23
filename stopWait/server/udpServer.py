@@ -66,7 +66,6 @@ def get_method(file_name, clientAddrPort):
     print "ready to send"
     packets_to_send = split_into_packets(file_name)
     for packet in packets_to_send:
-        print packet
         serverSocket.sendto(packet, clientAddrPort)
     serverSocket.sendto("Finished!",clientAddrPort)
 
