@@ -17,7 +17,10 @@ def receive_protocol_and_fname(serverSocket):
     message, clientAddrPort = serverSocket.recvfrom(2048)
     modified_message = "Acknowledging handshake from server"
     serverSocket.sendto(modified_message, clientAddrPort)
+
     protocol, file_name = message.split(" ")
+    serverSocket.sendto(modified_message, clientAddrPort)
+
     protocol = protocol.lower()
     if protocol == "put":
         put_method(file_name)
@@ -25,6 +28,9 @@ def receive_protocol_and_fname(serverSocket):
         get_method(file_name, clientAddrPort)
     else:
         sys.exit(1)
+
+    print protocol
+    print file_name
 
 
 def split_into_packets(file_name):
@@ -56,16 +62,13 @@ def split_into_packets(file_name):
 # timeout values, generally the protocol will still work.
 
 
-
 def get_method(file_name, clientAddrPort):
     print "ready to send"
-    packets = split_into_packets(file_name)
-    print "Printing packets"
-    for packet in packets:
+    packets_to_send = split_into_packets(file_name)
+    for packet in packets_to_send:
         print packet
         serverSocket.sendto(packet, clientAddrPort)
-    serverSocket.sendto("Finished!", clientAddrPort)
-
+    serverSocket.sendto("Finished!",clientAddrPort)
 
 def put_method(file_name):
     with open("stopWait/server/putFromClient.txt", 'w') as outputFile:
@@ -98,4 +101,3 @@ print "binding datagram socket to %s" % repr(serverAddr)
 serverSocket = socket(AF_INET, SOCK_DGRAM)
 serverSocket.bind(serverAddr)
 receive_protocol_and_fname(serverSocket)
-clientAddrPort = ""
