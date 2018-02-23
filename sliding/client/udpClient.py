@@ -19,20 +19,28 @@ def usage():
 
 def get_method(file_name,clientSocket):
     print("Initializing GET from client")
-    i=0
-    with open("stopWait/client/getFromServer.txt", 'w') as outputFile:
+    with open("sliding/client/getFromServer.txt", 'w') as outputFile:
+        i=0
+        k = 0
+        sliding_size = 4
+        currentSize = 0
+        packetNumber =0
         while 1:
-            packet, serverAddrPort = clientSocket.recvfrom(2048)
-            print packet
-            if packet == "Ending Communication!":
-                print "Done!"
+            currentSize=0
+            while currentSize < sliding_size:
+                packet, serverAddrPort = clientSocket.recvfrom(2048)
+                if packet == "Ending Communication!":
+                    print "Done comm!"
+                    clientSocket.sendto("Recieved packet " + str(i), serverAddrPort)
+                    sys.exit(1)
+                # time.sleep(4)
                 clientSocket.sendto("Recieved packet " + str(i), serverAddrPort)
-                sys.exit(1)
-            # time.sleep(4)
-            clientSocket.sendto("Recieved packet " + str(i), serverAddrPort)
-            outputFile.write(packet)
-            outputFile.flush()
-            i +=1
+                currentSize += 1
+                i +=1
+                print str(i) + " " +  packet
+                outputFile.write(packet)
+        outputFile.flush()
+
 
 # def recieve_packets(file_name, clientSocket):
 

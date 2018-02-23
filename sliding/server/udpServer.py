@@ -94,28 +94,42 @@ def signal_handler(signum, frame):
 
 def get_method(file_name, clientAddrPort):
     print "ready to send"
-    packets_to_send = split_into_packets(file_name)
+    packets = split_into_packets(file_name)
     i=0
-    modified_message= ""
-    for packet in packets_to_send:
+    currentSize = 0
+    temp = 0
+    counter =0
+    sliding_size = 4
+    while counter < len(packets)-1:
         signal.signal(signal.SIGALRM, signal_handler)
-        serverSocket.sendto(packet, clientAddrPort)
-        modified_message, clientAddrPort = serverSocket.recvfrom(2048)
-        print packet
-        while ( modified_message != "Recieved packet " + str(i) ):
-            try:
-                print "Modified message : " + modified_message
-                print modified_message
-                signal.alarm(5)
-                modified_message, clientAddrPort = serverSocket.recvfrom(2048)
-            except Exception as e:
-                if e.message == "timeout":
-                    print "timeout lol"
-                    serverSocket.sendto(packet, clientAddrPort)
+        currentSize = 0
+        temp =0
         # serverSocket.sendto(packet, clientAddrPort)
-        # time.sleep(.100)
-        i+=1
-        modified_message=""
+        # modified_message, clientAddrPort = serverSocket.recvfrom(2048)
+        while currentSize < sliding_size:
+            leIterativePackets = list()
+            while( (temp + counter) < (len (packets)-1) and temp < sliding_size):
+                leIterativePackets.append(packets[temp+counter])
+                temp +=1
+            print leIterativePackets
+            for packet in leIterativePackets:
+                serverSocket.sendto(packet,clientAddrPort)
+                modified_message, clientAddrPort = serverSocket.recvfrom(2048)
+                while ( modified_message != "Recieved packet " + str(i) ):
+                    try:
+                        # print "Modified message : " + modified_message
+                        # print modified_message
+                        signal.alarm(2)
+                        modified_message, clientAddrPort = serverSocket.recvfrom(2048)
+                    except Exception as e:
+                        if e.message == "timeout":
+                            print "timeout lol"
+                            serverSocket.sendto(packet, clientAddrPort)
+                i+=1
+                modified_message=""
+            currentSize+=1
+        counter += sliding_size
+    serverSocket.sendto("Ending Communication!", clientAddrPort)
     print "Sucessfully finished GET request"
     # serverSocket.sendto("Ending Communication!",clientAddrPort)
 
