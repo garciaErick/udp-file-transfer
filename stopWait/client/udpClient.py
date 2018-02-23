@@ -69,7 +69,7 @@ def put_method(file_name):
                     print "YAAAAAAAAAAAAY"
                     sys.exit(0)
                 print modified_message
-                signal.alarm(3)
+                signal.alarm(6)
                 modified_message, serverAddrPort = clientSocket.recvfrom(2048)
             except Exception as e:
                 if e.message == "timeout":

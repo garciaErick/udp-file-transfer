@@ -109,14 +109,14 @@ def get_method(file_name, clientAddrPort):
                     print "YAAAAAAAAAAA1AY"
                     sys.exit(0)
                 print modified_message
-                signal.alarm(3)
+                signal.alarm(5)
                 modified_message, clientAddrPort = serverSocket.recvfrom(2048)
             except Exception as e:
                 if e.message == "timeout":
                     print "timeout lol"
                     serverSocket.sendto(packet, clientAddrPort)
         # serverSocket.sendto(packet, clientAddrPort)
-        time.sleep(.100)
+        # time.sleep(.100)
         i+=1
         modified_message=""
     print "Sucessfully finished GET request"
