@@ -1,0 +1,3 @@
+stopWait/client/testFileFromServer.txt
+stopWait/server/testFileFromClient.txt
+.idea/workspace.xml
