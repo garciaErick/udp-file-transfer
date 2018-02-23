@@ -3,6 +3,7 @@ from socket import *
 
 import sys
 import os
+import time
 
 # default params
 serverAddr = ("", 50001)
@@ -28,28 +29,59 @@ def receive_protocol_and_fname(serverSocket):
     else:
         sys.exit(1)
 
-    print protocol
-    print file_name
-
 
 def split_into_packets(file_name):
     size = os.path.getsize(file_name)
     counter = 0
-    i = 0
     k = 100
-    message = ""
+    i = 0
     packets = list()
-    with open(file_name, 'r') as inputFile:
+    with open(file_name, 'rb') as inputFile:
         while counter < size:
-            if (size - counter < 100):
-                k = size - counter
-            while i < k:
-                message += inputFile.read(counter)
-                i += 1
-                counter += 1
-            i = 0
-        packets.append(message)
+            message = ""
+            # if (size - counter < 100):
+            #     k = size - counter
+            message += inputFile.read(k)
+            packets.append(message)
+            counter += k
+            i += 1
+
+    i = 0
+    for packet in packets:
+        print packet
+        i += 1
+    # print len(packets)
     return packets
+
+
+
+# def split_into_packets(file_name):
+#     size = os.path.getsize(file_name)
+#     counter = 0
+#     i = 0
+#     k = 100
+#     packets = list()
+#     with open(file_name, 'rb') as inputFile:
+#         while counter < size:
+#             message = ""
+#             if (size - counter < 100):
+#                 k = size - counter
+#             while i < k:
+#                 message += inputFile.read(1)
+#                 i += 1
+#                 counter += 1
+#                 # print "i" + str(i)
+#                 # print "k" + str(k)
+#                 # print "Inside loop " + message
+#
+#             packets.append(message)
+#             i = 0
+#             inputFile.flush()
+#     i = 0
+#     for packet in packets:
+#         print str(i) + ": " + packet
+#         i += 1
+#     return packets
 
 
 # TODO:
@@ -64,9 +96,13 @@ def split_into_packets(file_name):
 def get_method(file_name, clientAddrPort):
     print "ready to send"
     packets_to_send = split_into_packets(file_name)
+    packets_to_send.append("Finished!")
     for packet in packets_to_send:
         serverSocket.sendto(packet, clientAddrPort)
-    serverSocket.sendto("Finished!",clientAddrPort)
+        time.sleep(.100)
+
+
+    # serverSocket.sendto("Finished!",clientAddrPort)
 
 def put_method(file_name):
     with open("stopWait/server/putFromClient.txt", 'w') as outputFile:

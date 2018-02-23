@@ -1,8 +1,10 @@
 #! /bin/python
 from socket import *
+
 import sys
 import re
 import os
+import time
 
 # default params
 serverAddr = ('localhost', 50000)
@@ -17,23 +19,25 @@ def usage():
 
 def get_method(file_name,clientSocket):
     print("Initializing GET from client")
-    recieve_packets(file_name, clientSocket)
-
-
-def recieve_packets(file_name, clientSocket):
     with open("stopWait/client/getFromServer.txt", 'w') as outputFile:
         while 1:
             try:
                 packet, serverAddrPort = clientSocket.recvfrom(2048)
+                if packet == "Finished!":
+                    print "Done!"
+                    sys.exit(1)
+                time.sleep(.100)
                 print packet
-                if packet != "Finished!":
-                    outputFile.write(packet + "\n")
-                    outputFile.flush()
-                else:
+                outputFile.write(packet)
+                outputFile.flush()
+                if packet == "Finished!":
                     print "Done!"
                     sys.exit(1)
             finally:
                 message = "Successfully made get request"
+
+# def recieve_packets(file_name, clientSocket):
+
 
 
 def send_protocol_and_fname(clientSocket, protocol, file_name):
@@ -87,7 +91,8 @@ def split_into_packets(file_name):
                 i += 1
                 counter += 1
             i = 0
-        packets.append(message)
+            packets.append(message)
+            message =""
     return packets
 
 
