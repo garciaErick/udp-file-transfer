@@ -39,6 +39,7 @@ def split_into_packets(file_name):
     i = 0
     k = 100
     message = ""
+    with open("geefuck.txt", 'r') as inputFile:
     packets = list()
     with open(file_name, 'r') as inputFile:
         while counter < size:
@@ -49,6 +50,9 @@ def split_into_packets(file_name):
                 i += 1
                 counter += 1
             i = 0
+            print message + "TESTTESTTEST"
+            serverSocket.sendto(message, clientAddrPort)
+    serverSocket.sendto("Finished!", clientAddrPort)
         packets.append(message)
     return packets
 
@@ -62,6 +66,41 @@ def split_into_packets(file_name):
 # timeout values, generally the protocol will still work.
 
 
+
+def receive_handshake(serverSocket):
+    message, clientAddrPort = serverSocket.recvfrom(2048)
+    if (message == "Trying to start handshake from client"):
+        modifiedMessage = "Sucessfully made get request"
+        print modifiedMessage
+        serverSocket.sendto(modifiedMessage, clientAddrPort)
+        print "Successfully initiated communication with client"
+    else:
+        print message + "TESTTESTTEST"
+
+
+def get_method(file_name, clientAddrPort):
+    print "ready to send"
+    split_into_packets(file_name,clientAddrPort)
+
+def receive_protocol_and_fname(serverSocket):
+    message, clientAddrPort = serverSocket.recvfrom(2048)
+    modified_message = "Acknowledging handshake from server"
+    serverSocket.sendto(modified_message, clientAddrPort)
+
+    protocol, file_name = message.split(" ")
+    serverSocket.sendto(modified_message, clientAddrPort)
+
+    protocol = protocol.lower()
+    if protocol == "put":
+        put_method(file_name)
+    if protocol == "get":
+        # receive_handshake(serverSocket)
+        get_method(file_name, clientAddrPort)
+    else:
+        sys.exit(1)
+
+    print protocol
+    print file_name
 def get_method(file_name, clientAddrPort):
     print "ready to send"
     packets_to_send = split_into_packets(file_name)

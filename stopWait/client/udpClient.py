@@ -15,6 +15,27 @@ def usage():
     print "usage: %s [--serverAddr host:port]" % sys.argv[0]
 
 
+
+def get_method(file_name):
+    print "Initializing GET from server"
+    # clientSocket = socket(AF_INET, SOCK_DGRAM)
+    send_handshake(clientSocket)
+    recieve_packets(file_name, clientSocket)
+
+
+def recieve_packets(file_name, clientSocket):
+    with open("getFromServer.txt", 'w') as outputFile:
+        while 1:
+            try:
+                message, serverAddrPort = clientSocket.recvfrom(2048)
+                if message != "Finished!":
+                    print message + "NUMBERS    "
+                    outputFile.write(message + "\n")
+                    outputFile.flush()
+                else:
+                    print "Done!"
+                    sys.exit(1)
+
 def send_protocol_and_fname(clientSocket, protocol, file_name):
     print "Starting protocol from client: %s, file: %s" % (protocol.upper(), file_name)
     message = protocol + " " + file_name
@@ -44,6 +65,35 @@ def get_method(file_name):
 
 
 def put_method(file_name):
+    print("Initializing PUT from client")
+    send_packets(file_name, clientSocket)
+
+
+def send_handshake(clientSocket):
+    message = "Trying to start handshake from client"
+    print message
+    clientSocket.sendto(message, serverAddr)
+    modifiedMessage, clientAddrPort = clientSocket.recvfrom(2048)
+    if (modifiedMessage == "Acknowledging handshake from server"):
+        print "Successfully initiated communication with server\n"
+    else:
+        print modifiedMessage
+        # Send on timeout
+        sys.exit(1)
+
+def send_protocol_and_fname(clientSocket, protocol, file_name):
+    print "Starting protocol: %s, file: %s" % (protocol.upper(), file_name)
+    messageToAwknoledge = protocol + " " + file_name
+    clientSocket.sendto(messageToAwknoledge, serverAddr)
+    modified_message, serverAddrPort = clientSocket.recvfrom(2048)
+    # print "Modified message from %s is <%s>" % (repr(serverAddrPort), modified_message)
+    if (modified_message == "Acknowledging handshake from server"):
+        print "Successfully initiated communication with server\n"
+    else:
+        # print "Failed to innitiate trying again\n"
+        print modified_message
+        # Send on timeout
+        sys.exit(1)
     print "Initializing PUT from client"
     # send_packets(file_name, clientSocket)
     packets_to_send = split_into_packets(file_name)
@@ -102,6 +152,7 @@ def main():
             send_protocol_and_fname(clientSocket, protocol, file_name)
             get_method(file_name)
         else:
+            print "unexpected parameterr %s" % args[0]
             print "Invalid protocol: %s" % protocol
             usage()
     except Exception as e:
