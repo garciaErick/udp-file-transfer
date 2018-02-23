@@ -1,5 +1,5 @@
 # Stop and wait
-##Client
+## Client
 A client can innitiate a PUT or GET request
 * A *PUT* request will send a file from the /stopWait/client/ to the /stopWait/server/ directory
 * A *GET* request will receive a file from the /stopWait/server/ in the /stopWait/clients/ directory
