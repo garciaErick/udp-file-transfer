@@ -15,7 +15,8 @@ def usage():
     print "usage: %s [--serverAddr host:port]" % sys.argv[0]
 
 
-def get_method(file_name):
+def get_method(file_name,clientSocket):
+    print("Initializing GET from client")
     recieve_packets(file_name, clientSocket)
 
 
@@ -23,10 +24,9 @@ def recieve_packets(file_name, clientSocket):
     with open("stopWait/client/getFromServer.txt", 'w') as outputFile:
         while 1:
             try:
-                message, serverAddrPort = clientSocket.recvfrom(2048)
-                if message != "Finished!":
-                    print message + "NUMBERS    "
-                    outputFile.write(message + "\n")
+                packet, serverAddrPort = clientSocket.recvfrom(2048)
+                if packet != "Finished!":
+                    outputFile.write(packet + "\n")
                     outputFile.flush()
                 else:
                     print "Done!"
@@ -119,7 +119,7 @@ def main():
             put_method(file_name)
         elif protocol.lower() == "get":
             send_protocol_and_fname(clientSocket, protocol, file_name)
-            get_method(file_name)
+            get_method(file_name,clientSocket)
         else:
             print "unexpected parameterr %s" % args[0]
             print "Invalid protocol: %s" % protocol
