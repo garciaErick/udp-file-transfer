@@ -2,7 +2,7 @@
 pkill python
 
 printf "Starting UDP Server\n"
-python stopWait/server/udpServer.py &
+python sliding/server/udpServer.py &
 printf "Success\n\n"
 
 printf "Starting UDP Proxy\n"
@@ -12,7 +12,7 @@ printf "Success\n\n"
  sleep 1
 
  printf "Starting UDP Client\n"
- python stopWait/client/udpClient.py -p GET -f testFileFromServer.txt
+ python sliding/client/udpClient.py -p GET -f testFileFromClient.txt
  printf "Success\n\n"
 
  pkill python
