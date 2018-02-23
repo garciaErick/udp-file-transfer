@@ -16,7 +16,6 @@ def usage():
 def receive_protocol_and_fname(serverSocket):
     message, clientAddrPort = serverSocket.recvfrom(2048)
     modified_message = "Acknowledging handshake from server"
-    serverSocket.sendto(modified_message, clientAddrPort)
 
     protocol, file_name = message.split(" ")
     serverSocket.sendto(modified_message, clientAddrPort)
