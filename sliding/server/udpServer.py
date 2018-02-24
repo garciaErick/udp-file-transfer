@@ -18,14 +18,15 @@ def receive_protocol_and_fname(serverSocket):
     message, clientAddrPort = serverSocket.recvfrom(2048)
     modified_message = "Acknowledging handshake from server"
 
-    protocol, file_name = message.split(" ")
+    protocol, file_name , sliding_size = message.split(" ")
+    window_size = int(sliding_size)
     serverSocket.sendto(modified_message, clientAddrPort)
 
     protocol = protocol.lower()
     if protocol == "put":
-        put_method(file_name)
+        put_method(file_name, window_size)
     elif protocol == "get":
-        get_method(file_name, clientAddrPort)
+        get_method(file_name, clientAddrPort, window_size)
     else:
         sys.exit(1)
 
@@ -92,23 +93,22 @@ def split_into_packets(file_name):
 def signal_handler(signum, frame):
     raise Exception("timeout")
 
-def get_method(file_name, clientAddrPort):
+def get_method(file_name, clientAddrPort,window_size):
     print "ready to send"
     packets = split_into_packets(file_name)
     i=0
     currentSize = 0
     temp = 0
     counter =0
-    sliding_size = 4
     while counter < len(packets)-1:
         signal.signal(signal.SIGALRM, signal_handler)
         currentSize = 0
         temp =0
         # serverSocket.sendto(packet, clientAddrPort)
         # modified_message, clientAddrPort = serverSocket.recvfrom(2048)
-        while currentSize < sliding_size:
+        while currentSize < window_size:
             leIterativePackets = list()
-            while( (temp + counter) < (len (packets)-1) and temp < sliding_size):
+            while( (temp + counter) < (len (packets)-1) and temp < window_size):
                 leIterativePackets.append(packets[temp+counter])
                 temp +=1
             print leIterativePackets
@@ -128,24 +128,23 @@ def get_method(file_name, clientAddrPort):
                 i+=1
                 modified_message=""
             currentSize+=1
-        counter += sliding_size
+        counter += window_size
     serverSocket.sendto("Ending Communication!", clientAddrPort)
     print "Sucessfully finished GET request"
     # serverSocket.sendto("Ending Communication!",clientAddrPort)
 
-def put_method(file_name):
+def put_method(file_name,window_size):
     with open("sliding/server/putFromClient.txt", 'w') as outputFile:
         i=0
         k = 0
-        sliding_size = 4
         currentSize = 0
         packetNumber =0
         while 1:
             currentSize=0
-            while currentSize < sliding_size:
+            while currentSize < window_size:
                 packet, clientAddrPort = serverSocket.recvfrom(2048)
                 if packet == "Ending Communication!":
-                    print "Done!!!11!"
+                    print "Done!"
                     serverSocket.sendto("Recieved packet " + str(i), clientAddrPort)
                     sys.exit(1)
                 serverSocket.sendto("Recieved packet " + str(i), clientAddrPort)
