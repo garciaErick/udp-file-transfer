@@ -12,7 +12,7 @@ printf "Success\n\n"
  sleep 1
 
  printf "Starting UDP Client\n"
- python sliding/client/udpClient.py -p GET -f testFileFromClient.txt
+ python sliding/client/udpClient.py -p GET -f testFileFromClient.txt -w 4
  printf "Success\n\n"
 
  pkill python
