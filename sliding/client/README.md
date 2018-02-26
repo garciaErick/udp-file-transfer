@@ -14,5 +14,5 @@ Optional parameter --serverAddr <host:port> (default localhost:50000)
 
          [--serverAddr host:port]          localhost:50001     Server port number
          [--window_size]                                4        Window Size
-         [-w]                                         4        Window Size
+         [-w]                                           4        Window Size
 ~~~
