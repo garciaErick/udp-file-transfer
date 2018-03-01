@@ -6,7 +6,7 @@ import re
 import os
 import time
 import signal
-
+import timeit
 # default params
 serverAddr = ('localhost', 50000)
 clientSocket = socket(AF_INET, SOCK_DGRAM)
@@ -86,12 +86,14 @@ def get_method(file_name, clientSocket):
     i = 0
     with open("stopWait/client/" + file_name, 'w') as outputFile:
         while 1:
+            timeStart = timeit.default_timer()
             packet, serverAddrPort = clientSocket.recvfrom(2048)
             if packet == "Finished!":
                 print "3. Successfully processed GET request. Terminating client..."
                 clientSocket.sendto("Received last packet", serverAddrPort)
                 sys.exit(1)
             # time.sleep(4)
+            print "Packet took : "  + str(timeit.default_timer()- timeStart ) + " seconds"
             clientSocket.sendto("Recieved packet " + str(i), serverAddrPort)
             outputFile.write(packet)
             outputFile.flush()

@@ -6,6 +6,7 @@ import re
 import os
 import time
 import signal
+import timeit
 # default params
 serverAddr = ('localhost', 50000)
 clientSocket = socket(AF_INET, SOCK_DGRAM)
@@ -26,6 +27,7 @@ def get_method(file_name,clientSocket,window_size):
         packetNumber =0
         while 1:
             currentSize=0
+            startTime = timeit.default_timer()
             while currentSize < window_size:
                 packet, serverAddrPort = clientSocket.recvfrom(2048)
                 if packet == "Ending Communication!":
@@ -38,7 +40,9 @@ def get_method(file_name,clientSocket,window_size):
                 i +=1
                 print str(i) + " " +  packet
                 outputFile.write(packet)
+                print "Time taken for packet: " + str(i) + " was "+ str(timeit.default_timer() - startTime ) + " seconds"
         outputFile.flush()
+
 
 
 # def recieve_packets(file_name, clientSocket):
@@ -74,6 +78,7 @@ def put_method(file_name, window_size):
         temp =0
         while currentSize < window_size:
             leIterativePackets = list()
+            timeStart = time.clock()
             while( (temp + counter) < (len (packets)-1) and temp < window_size):
                 leIterativePackets.append(packets[temp+counter])
                 temp +=1
@@ -93,6 +98,7 @@ def put_method(file_name, window_size):
                 i+=1
                 # print modified_message
                 modified_message=""
+                print "Time taken: " + str(time.clock()- timeStart) + " seconds"
             currentSize+=1
         counter += window_size
     clientSocket.sendto("Ending Communication!", serverAddr)

@@ -5,7 +5,7 @@ import sys
 import os
 import time
 import signal
-
+import timeit
 # default params
 serverAddr = ("", 50001)
 
@@ -60,6 +60,7 @@ def put_method(file_name):
     with open("stopWait/server/" + file_name, 'w') as outputFile:
         i = 0
         k = 0
+        timeStart = timeit.default_timer()
         while 1:
             # The following was used to test timeout
             # if k == 2:
@@ -71,6 +72,7 @@ def put_method(file_name):
                 serverSocket.sendto("Received last packet", clientAddrPort)
                 return
 
+            print "Packet took : "  + str(timeit.default_timer()- timeStart ) + " seconds"
             outputFile.write(packet)
             serverSocket.sendto("Recieved packet " + str(i), clientAddrPort)
             outputFile.flush()

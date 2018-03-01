@@ -5,6 +5,7 @@ import sys
 import os
 import time
 import signal
+import timeit
 # default params
 serverAddr = ("", 50001)
 
@@ -141,6 +142,7 @@ def put_method(file_name,window_size):
         packetNumber =0
         while 1:
             currentSize=0
+            startTime = timeit.default_timer()
             while currentSize < window_size:
                 packet, clientAddrPort = serverSocket.recvfrom(2048)
                 if packet == "Ending Communication!":
@@ -151,6 +153,7 @@ def put_method(file_name,window_size):
                 currentSize +=1
                 i +=1
                 print str(i) + " " +  packet
+                print "Time taken for packet: " + str(i) + " was "+ str(timeit.default_timer() - startTime ) + " seconds"
                 outputFile.write(packet)
             outputFile.flush()
 
