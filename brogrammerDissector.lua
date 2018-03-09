@@ -30,7 +30,7 @@ function adrian_proto.dissector(buffer,pinfo,tree)
     if command == "GET" or command == "PUT" then -- Request a file
 	myProtocol =  command
 	subtree:add(buffer(2), "FILE: " .. buffer(3):string())
-    elseif fullMessage == "Received last packet" or "Finished!" then -- Request a file
+    elseif fullMessage == "Received last packet" or fullMessage == "Finished!" then -- Request a file
 	subtree:add("Finished " .. myProtocol .. " request")
     else						-- Unknown message type	
         subtree:add_expert_info(PI_PROTOCOL, PI_WARN, "Unknown message type")
