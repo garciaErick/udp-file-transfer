@@ -19,32 +19,23 @@ function adrian_proto.dissector(buffer,pinfo,tree)
 	-- All messages have a sequence number and type
     local seq_num = buffer(0,1):uint()
     local msg_type = buffer(1,1):string() 
-    local command = buffer(0,8):string()
-    local elMensaje = buffer():string()
+    local command = buffer(0,3):string()
+    local fullMessage = buffer():string()
     
     subtree:add(buffer(0,1),"Sequence Number: " .. seq_num)
     subtree:add(buffer(1,1),"Type: " .. msg_type)
-    subtree:add(buffer(0,8),"command: " .. command)
-    subtree:add("My Fucking command is: " .. elMensaje)
+    subtree:add(buffer(0,3),"command: " .. command)
+    subtree:add("Full Message: " .. fullMessage)
 
-    if msg_type == "X" then  	-- File Not Found
-		subtree:add(buffer(2), "Response: " .. buffer(2):string())
-		subtree:add_expert_info(PI_RESPONSE_CODE, PI_WARN, "File not found")
-	elseif msg_type == "G" then -- Request a file
-		subtree:add(buffer(2), "GET: " .. buffer(2):string())
-	elseif elMensaje == "Recieved" then -- Request a file
-		subtree:add(buffer(2), "GET: " .. buffer(2):string())
-	elseif elMensaje == "Acknowledging" then -- Request a file
-		subtree:add(buffer(2), "GET: " .. buffer(2):string())
-	elseif msg_type == "D" or msg_type == "F" then 	-- Sending Data
-		subtree:add(buffer(2),"DATA: " .. buffer(2))
-		if msg_type == "F" then						-- Last Data
-			subtree:add_expert_info(PI_RESPONSE_CODE, PI_NOTE, "Finished sending")
-		end
-	else						-- Unknown message type	
-		subtree:add_expert_info(PI_PROTOCOL, PI_WARN, "Unknown message type")
-		subtree:add(buffer(0),"ERROR: " .. buffer(0))
-	end
+    if command == "GET" or command == "PUT" then -- Request a file
+	myProtocol =  command
+	subtree:add(buffer(2), "FILE: " .. buffer(3):string())
+    elseif fullMessage == "Received last packet" or "Finished!" then -- Request a file
+	subtree:add("Finished " .. myProtocol .. " request")
+    else						-- Unknown message type	
+        subtree:add_expert_info(PI_PROTOCOL, PI_WARN, "Unknown message type")
+        subtree:add(buffer(0),"ERROR: " .. buffer(0))
+    end
 end
 -- load the udp.port table
 udp_table = DissectorTable.get("udp.port")
