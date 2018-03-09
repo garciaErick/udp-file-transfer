@@ -21,20 +21,28 @@ function adrian_proto.dissector(buffer,pinfo,tree)
     local msg_type = buffer(1,1):string() 
     local command = buffer(0,3):string()
     local fullMessage = buffer():string()
+    unknownMessage = false
     
-    subtree:add(buffer(0,1),"Sequence Number: " .. seq_num)
-    subtree:add(buffer(1,1),"Type: " .. msg_type)
-    subtree:add(buffer(0,3),"command: " .. command)
-    subtree:add("Full Message: " .. fullMessage)
 
     if command == "GET" or command == "PUT" then -- Request a file
 	myProtocol =  command
 	subtree:add(buffer(2), "FILE: " .. buffer(3):string())
     elseif fullMessage == "Received last packet" or fullMessage == "Finished!" then -- Request a file
 	subtree:add("Finished " .. myProtocol .. " request")
+    elseif fullMessage == "Acknowledging handshake from server" then -- Request a file
+	subtree:add("Started communication")
+    elseif fullMessage == "Acknowledging handshake from server" then -- Request a file
+	subtree:add("Started communication")
     else						-- Unknown message type	
         subtree:add_expert_info(PI_PROTOCOL, PI_WARN, "Unknown message type")
         subtree:add(buffer(0),"ERROR: " .. buffer(0))
+	unknownMessage  = true
+    end
+    if unknownMessage  == false then
+    	subtree:add(buffer(0,1),"Sequence Number: " .. seq_num)
+     	subtree:add(buffer(1,1),"Type: " .. msg_type)
+    	subtree:add(buffer(0,3),"command: " .. command)
+    	subtree:add("Full Message: " .. fullMessage)
     end
 end
 -- load the udp.port table
