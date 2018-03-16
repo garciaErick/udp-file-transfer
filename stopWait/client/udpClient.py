@@ -38,7 +38,7 @@ def split_into_packets(file_name):
     k = 100
     i = 0
     packets = list()
-    with open("stopWait/client/" + file_name, 'rb') as inputFile:
+    with open(file_name, 'rb') as inputFile:
         while counter < size:
             message = ""
             message += inputFile.read(k)

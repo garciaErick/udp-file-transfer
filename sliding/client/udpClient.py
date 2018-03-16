@@ -20,7 +20,7 @@ def usage():
 
 def get_method(file_name,clientSocket,window_size):
     print("Initializing GET from client")
-    with open("sliding/client/getFromServer.txt", 'w') as outputFile:
+    with open("sliding/client/" + file_name, 'w') as outputFile:
         i=0
         k = 0
         currentSize = 0
@@ -38,7 +38,7 @@ def get_method(file_name,clientSocket,window_size):
                 clientSocket.sendto("Recieved packet " + str(i), serverAddrPort)
                 currentSize += 1
                 i +=1
-                print str(i) + " " +  packet
+                # print str(i) + " " +  packet
                 outputFile.write(packet)
                 print "Time taken for packet: " + str(i) + " was "+ str(timeit.default_timer() - startTime ) + " seconds"
         outputFile.flush()
@@ -47,22 +47,43 @@ def get_method(file_name,clientSocket,window_size):
 
 # def recieve_packets(file_name, clientSocket):
 
-
+def signal_handler(signum, frame):
+    raise Exception("timeout")
 
 def send_protocol_and_fname(clientSocket, protocol, file_name, window_size):
     print "Starting protocol from client: %s, file: %s" % (protocol.upper(), file_name)
+    signal.signal(signal.SIGALRM, signal_handler)
     message = protocol + " " + file_name + " " + str(window_size)
     clientSocket.sendto(message, serverAddr)
     modified_message, serverAddrPort = clientSocket.recvfrom(2048)
-    if (modified_message == "Acknowledging handshake from server"):
-        print "Successfully initiated communication with server\n"
-    else:
-        print "Failed to innitiate trying again\n"
-        # TODO: Send on timeout
-        sys.exit(1)
+    while (modified_message != "Acknowledging handshake from server"):
+        try:
+            print modified_message
+            signal.alarm(2)
+            modified_message, serverAddrPort = clientSocket.recvfrom(2048)
+        except Exception as e:
+            if e.message == "timeout":
+                print "timeout lol" + modified_message
+                clientSocket.sendto(message, serverAddr)
+    # else:
+    #     print "Failed to innitiate trying again\n"
+    #     send_protocol_and_fname(clientSocket,protocol,file_name,window_size)
 
-def signal_handler(signum, frame):
-    raise Exception("timeout")
+def send_protocol_and_fname(clientSocket, protocol, file_name):
+    print "Starting protocol from client: %s, file: %s" % (protocol.upper(), file_name)
+    message = protocol + " " + file_name + " " + str(window_size)
+    clientSocket.sendto(message, serverAddr)
+    signal.signal(signal.SIGALRM, signal_handler)
+    modified_message, serverAddrPort = clientSocket.recvfrom(2048)
+    while (modified_message != "Acknowledging handshake from server"):
+        try:
+            print modified_message
+            signal.alarm(2)
+            modified_message, serverAddrPort = clientSocket.recvfrom(2048)
+        except Exception as e:
+            if e.message == "timeout":
+                print "timeout lol" + modified_message
+                clientSocket.sendto(message, serverAddr)
 
 def put_method(file_name, window_size):
     print("Initializing PUT from client")
@@ -107,17 +128,7 @@ def put_method(file_name, window_size):
 # def resend_on_timeout(packet, clientSocket):
 
 
-def send_protocol_and_fname(clientSocket, protocol, file_name):
-    print "Starting protocol from client: %s, file: %s" % (protocol.upper(), file_name)
-    message = protocol + " " + file_name + " " + str(window_size)
-    clientSocket.sendto(message, serverAddr)
-    modified_message, serverAddrPort = clientSocket.recvfrom(2048)
-    if (modified_message == "Acknowledging handshake from server"):
-        print "Successfully initiated communication with server\n"
-    else:
-        print "Failed to innitiate trying again\n"
-        # Send on timeout
-        sys.exit(1)
+
 
 
 

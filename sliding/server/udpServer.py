@@ -15,21 +15,7 @@ def usage():
     sys.exit(1)
 
 
-def receive_protocol_and_fname(serverSocket):
-    message, clientAddrPort = serverSocket.recvfrom(2048)
-    modified_message = "Acknowledging handshake from server"
 
-    protocol, file_name , sliding_size = message.split(" ")
-    window_size = int(sliding_size)
-    serverSocket.sendto(modified_message, clientAddrPort)
-
-    protocol = protocol.lower()
-    if protocol == "put":
-        put_method(file_name, window_size)
-    elif protocol == "get":
-        get_method(file_name, clientAddrPort, window_size)
-    else:
-        sys.exit(1)
 
 
 def split_into_packets(file_name):
@@ -94,6 +80,34 @@ def split_into_packets(file_name):
 def signal_handler(signum, frame):
     raise Exception("timeout")
 
+def receive_protocol_and_fname(serverSocket):
+    signal.signal(signal.SIGALRM, signal_handler)
+    message, clientAddrPort = serverSocket.recvfrom(2048)
+    modified_message = "Acknowledging handshake from server"
+    protocol, file_name , sliding_size = message.split(" ")
+    window_size = int(sliding_size)
+    protocol = protocol.lower()
+    while(1):
+        try:
+            serverSocket.sendto(modified_message, clientAddrPort)
+            if protocol == "put":
+                break
+            elif protocol == "get":
+                break
+            signal.alarm(2)
+            message, clientAddrPort = serverSocket.recvfrom(2048)
+            protocol, file_name , sliding_size = message.split(" ")
+            window_size = int(sliding_size)
+            protocol = protocol.lower()
+        except Exception as e:
+            if e.message == "timeout":
+                print protocol
+                serverSocket.sendto(modified_message, clientAddrPort)
+    if protocol == "put":
+        put_method(file_name, window_size)
+    elif protocol == "get":
+        get_method(file_name, clientAddrPort, window_size)
+
 def get_method(file_name, clientAddrPort,window_size):
     print "ready to send"
     packets = split_into_packets(file_name)
@@ -135,7 +149,7 @@ def get_method(file_name, clientAddrPort,window_size):
     # serverSocket.sendto("Ending Communication!",clientAddrPort)
 
 def put_method(file_name,window_size):
-    with open("sliding/server/putFromClient.txt", 'w') as outputFile:
+    with open("sliding/server/" + file_name, 'w') as outputFile:
         i=0
         k = 0
         currentSize = 0
