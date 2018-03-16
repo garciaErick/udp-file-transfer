@@ -33,6 +33,7 @@ that way it is more modular and we only change the different variables "protocol
 and "status" and print them at the end.
 
 ```lua
+-- Parsing the protocol, filename and status 
 if command == "GET" or command == "PUT" then -- Request a file
 myProtocol =  command
 myFile = buffer(3):string()
@@ -49,6 +50,8 @@ subtree:add("Probably processing file...")
     subtree:add(buffer(0),"ERROR: " .. buffer(0))
 unknownMessage  = true
 end
+
+-- Printing the current protocol, filename and status
 if unknownMessage  == false then --Valid message, print everything 
 subtree:add("Protocol: " .. myProtocol)
 subtree:add("FILE: " .. myFile)
