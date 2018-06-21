@@ -1,16 +1,12 @@
-# nets-udp-file-transfer
+# udp-file-transfer
 
 
 ## General description
-Implement a stop-and-wait file transfer protocol of your own design
+Stop-and-wait file transfer protocol of your own design
 that utilizes UDP as its transport.
 
-### Undergraduates: only need to implement "get"
-
-Client syntax: get *filename*
-
-### Graduate students: must implement both "get" and "put"
-
+### Protocols
+The code supports both get and put protocols
 Client syntax:
 * get *filename*
 * put *filename*
@@ -40,17 +36,12 @@ protocol is unable to successfully transfer a file.
 
 ## Part 1: Stop and Wait
 
-Your solution should be in the stopWait subdir and implement a stop
-and wait protocol.   Your client should be in its 
-client subdir.  Your server should be in its server subdir.  Each
-should be documented (an empty README is provided).
-
+The solution should be in the stopWait subdir and implement a stop
+and wait protocol.  
 
 ## Part 2: Sliding window
 
-Your solution should be in the sliding subdir.  Your client should be in its
-client subdir.  Your server should be in its server subdir.  Each
-should be documented (an empty README is provided).
+Your solution should be in the sliding subdir.  
 
 
 # UDP Proxy
